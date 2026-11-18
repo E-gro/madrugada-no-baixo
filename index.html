@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Madrugada no Baixo — Tower Defense 3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div id="floating-labels"></div>
+
+  <!-- TOP HUD -->
+  <header id="top-hud">
+    <div class="hud-brand">
+      <div class="clock-badge" id="hud-clock">02:00</div>
+      <div class="brand-titles">
+        <h1>MADRUGADA NO BAIXO</h1>
+        <span id="hud-subtitle">Associação dos Moradores Indignados</span>
+      </div>
+    </div>
+
+    <div class="hud-stats">
+      <div class="stat-pill sleep-pill" title="Se chegar a 0%, a rua inteira acorda de mau humor!">
+        <span class="stat-icon">😴</span>
+        <div class="stat-info">
+          <span class="stat-label">Sossego da Rua</span>
+          <div class="sleep-bar-wrap">
+            <div class="sleep-bar-fill" id="hud-sleep-bar"></div>
+          </div>
+        </div>
+        <strong id="hud-sleep-text">100%</strong>
+      </div>
+
+      <div class="stat-pill money-pill" title="Caixinha do condomínio para chamar e equipar vizinhos">
+        <span class="stat-icon">☕</span>
+        <div class="stat-info">
+          <span class="stat-label">Caixinha</span>
+          <strong id="hud-money">R$ 180</strong>
+        </div>
+      </div>
+
+      <div class="stat-pill wave-pill">
+        <span class="stat-icon">📢</span>
+        <div class="stat-info">
+          <span class="stat-label">Madrugada</span>
+          <strong id="hud-wave">Onda 0 / 10</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-actions">
+      <button id="btn-next-wave" class="btn-primary pulse-ready">
+        <span>🚨 Chamar Onda 1</span>
+      </button>
+      <button id="btn-speed" class="btn-icon" title="Velocidade do jogo (1x / 2x)">1x</button>
+      <button id="btn-audio" class="btn-icon" title="Ativar/Desativar Som">🔊</button>
+      <button id="btn-camera" class="btn-icon" title="Centralizar Câmera">🎥</button>
+    </div>
+  </header>
+
+  <!-- WAVE BANNER -->
+  <div id="wave-banner" class="hidden">
+    <div class="wave-banner-title" id="wave-banner-title">ONDA 1</div>
+    <div class="wave-banner-sub" id="wave-banner-sub">Os primeiros entregadores sem escapamento entraram na rua!</div>
+  </div>
+
+  <!-- TOWER INSPECTOR (UPGRADE / SELL) -->
+  <aside id="inspector-panel" class="hidden">
+    <div class="inspector-header">
+      <div>
+        <span class="inspector-lvl" id="insp-level">Nível 1</span>
+        <h3 id="insp-name">Seu Jorge da Chinelada</h3>
+      </div>
+      <button id="insp-close" class="btn-close" title="Fechar (ESC)">✕</button>
+    </div>
+    <p id="insp-desc" class="inspector-desc">Mira cirúrgica de chinelo Havaiana.</p>
+
+    <div class="inspector-stats">
+      <div class="insp-stat"><span>Dano</span><strong id="insp-dmg">22</strong></div>
+      <div class="insp-stat"><span>Alcance</span><strong id="insp-range">7.5m</strong></div>
+      <div class="insp-stat"><span>Cadência</span><strong id="insp-rate">1.2/s</strong></div>
+    </div>
+
+    <div class="inspector-target-row">
+      <span>Foco:</span>
+      <div class="target-modes">
+        <button class="mode-btn active" data-mode="first">1º da Fila</button>
+        <button class="mode-btn" data-mode="strong">Mais Barulhento</button>
+        <button class="mode-btn" data-mode="fast">Mais Rápido</button>
+      </div>
+    </div>
+
+    <div class="inspector-buttons">
+      <button id="btn-upgrade" class="btn-upgrade">
+        <span>⬆️ Evoluir</span>
+        <strong id="insp-upgrade-cost">R$ 65</strong>
+      </button>
+      <button id="btn-sell" class="btn-sell">
+        <span>Mandar Dormir</span>
+        <strong id="insp-sell-val">+R$ 35</strong>
+      </button>
+    </div>
+  </aside>
+
+  <!-- BOTTOM BUILD BAR -->
+  <footer id="build-bar">
+    <div class="build-hint" id="build-hint">
+      Clique em um vizinho abaixo (ou teclas <kbd>1</kbd>-<kbd>4</kbd>) e posicione nas calçadas iluminadas da rua!
+    </div>
+    <div class="tower-cards" id="tower-cards">
+      <!-- Populated dynamically from config.js -->
+    </div>
+  </footer>
+
+  <!-- START MODAL -->
+  <div id="modal-overlay" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-badge">02:00 DA MANHÃ • QUINTA-FEIRA</div>
+      <h2>MADRUGADA NO BAIXO</h2>
+      <p class="modal-lead">
+        Todo mundo tem que trabalhar cedo amanhã, mas os <strong>motoqueiros do "randandandan"</strong> e os
+        <strong>carros de som treme-vidro</strong> resolveram transformar as ruas do Baixo em pista de teste!
+      </p>
+
+      <div class="how-to-grid">
+        <div class="how-item">
+          <span class="how-emoji">🩴</span>
+          <div>
+            <strong>Chame os Vizinhos</strong>
+            <p>Posicione moradores indignados nos pontos marcados pelas calçadas e esquinas.</p>
+          </div>
+        </div>
+        <div class="how-item">
+          <span class="how-emoji">🪣</span>
+          <div>
+            <strong>Combine Estratégias</strong>
+            <p>Água gelada atrasa as motos, ovos tiram a blindagem acústica e o Jammer do Síndico frita paredões!</p>
+          </div>
+        </div>
+        <div class="how-item">
+          <span class="how-emoji">🌅</span>
+          <div>
+            <strong>Resista até as 06:00</strong>
+            <p>Segure 10 ondas de barulho até o sol nascer sem deixar o Sossego da Rua zerar!</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="controls-note">
+        🖱️ <strong>Arraste com botão direito / esquerdo</strong> para girar a câmera • <strong>Scroll</strong> para zoom • <strong>1-4</strong> atalhos de vizinhos
+      </p>
+
+      <button id="btn-start-game" class="btn-start">
+        ☕ REUNIR O CONDOMÍNIO E JOGAR!
+      </button>
+    </div>
+  </div>
+
+  <!-- ENDGAME MODAL -->
+  <div id="end-overlay" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-badge" id="end-badge">FIM DA MADRUGADA</div>
+      <h2 id="end-title">O SOL NASCEU NO BAIXO!</h2>
+      <p class="modal-lead" id="end-desc"></p>
+      <div class="end-stats" id="end-stats"></div>
+      <div class="end-actions">
+        <button id="btn-endless" class="btn-upgrade hidden">🔥 Continuar em Madrugada Infinita</button>
+        <button id="btn-restart" class="btn-start">🔄 Jogar Novamente</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

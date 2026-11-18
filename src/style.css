@@ -1,0 +1,684 @@
+:root {
+  --bg-glass: rgba(13, 17, 34, 0.84);
+  --bg-glass-strong: rgba(10, 13, 26, 0.94);
+  --border-subtle: rgba(255, 209, 102, 0.22);
+  --amber: #ffd166;
+  --amber-hot: #ff9f1c;
+  --neon-pink: #ff3b7f;
+  --neon-cyan: #2ec4b6;
+  --green: #38d399;
+  --red: #ff5964;
+  --text-main: #f8f9fc;
+  --text-dim: #9aa5c4;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #070914;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text-main);
+}
+
+#canvas-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+#floating-labels {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.float-tag {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+  pointer-events: none;
+  transition: opacity 0.15s linear;
+}
+
+/* TOP HUD */
+#top-hud {
+  position: fixed;
+  top: 12px;
+  left: 14px;
+  right: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+}
+
+.hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clock-badge {
+  font-family: 'Chakra Petch', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--amber);
+  background: rgba(255, 209, 102, 0.12);
+  border: 1px solid rgba(255, 209, 102, 0.4);
+  padding: 5px 11px;
+  border-radius: 9px;
+  text-shadow: 0 0 10px rgba(255, 209, 102, 0.55);
+}
+
+.brand-titles h1 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+.brand-titles span {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.hud-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+
+.stat-icon {
+  font-size: 1.2rem;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 0.67rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+.stat-pill strong {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 1rem;
+}
+
+.money-pill strong {
+  color: var(--green);
+}
+
+.wave-pill strong {
+  color: var(--amber);
+}
+
+.sleep-bar-wrap {
+  width: 92px;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.sleep-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--green));
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  outline: none;
+  transition: transform 0.12s ease, filter 0.15s ease, background 0.15s ease;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--amber), var(--amber-hot));
+  color: #161209;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 9px 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(255, 159, 28, 0.35);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn-primary:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pulse-ready {
+  animation: pulseGlow 1.8s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 209, 102, 0.55); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 209, 102, 0); }
+}
+
+.btn-icon {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.btn-icon.active-speed {
+  background: rgba(46, 196, 182, 0.25);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+/* WAVE BANNER */
+#wave-banner {
+  position: fixed;
+  top: 86px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 11;
+  text-align: center;
+  background: rgba(12, 15, 30, 0.9);
+  border: 1px solid rgba(255, 59, 127, 0.5);
+  padding: 10px 26px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  animation: slideBanner 0.3s ease-out;
+}
+
+@keyframes slideBanner {
+  from { opacity: 0; transform: translate(-50%, -12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.wave-banner-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--neon-pink);
+  letter-spacing: 0.08em;
+}
+
+.wave-banner-sub {
+  font-size: 0.83rem;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+/* INSPECTOR PANEL */
+#inspector-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 132px;
+  width: 290px;
+  z-index: 12;
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+}
+
+.inspector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.inspector-lvl {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--neon-cyan);
+  letter-spacing: 0.06em;
+}
+
+.inspector-header h3 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 1.02rem;
+  color: var(--amber);
+}
+
+.btn-close {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+}
+
+.inspector-desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+.inspector-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.insp-stat {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 6px;
+  text-align: center;
+}
+
+.insp-stat span {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.insp-stat strong {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.inspector-target-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 11px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.target-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.mode-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 5px 4px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.mode-btn.active {
+  background: rgba(255, 209, 102, 0.16);
+  color: var(--amber);
+  border-color: rgba(255, 209, 102, 0.45);
+}
+
+.inspector-buttons {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 8px;
+}
+
+.btn-upgrade, .btn-sell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 6px;
+  border-radius: 9px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.btn-upgrade {
+  background: linear-gradient(135deg, #2ec4b6, #20a4f3);
+  color: #06131c;
+}
+
+.btn-upgrade:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.btn-sell {
+  background: rgba(255, 89, 100, 0.16);
+  border: 1px solid rgba(255, 89, 100, 0.4);
+  color: #ff8a93;
+}
+
+/* BUILD BAR */
+#build-bar {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 96vw;
+}
+
+.build-hint {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  background: rgba(9, 12, 24, 0.82);
+  padding: 4px 12px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.build-hint kbd {
+  background: rgba(255, 255, 255, 0.14);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: var(--amber);
+}
+
+.tower-cards {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  overflow-x: auto;
+}
+
+.tower-card {
+  position: relative;
+  width: 178px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 11px;
+  text-align: left;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tower-card:hover:not(.cant-afford) {
+  background: rgba(255, 209, 102, 0.1);
+  border-color: rgba(255, 209, 102, 0.45);
+  transform: translateY(-2px);
+}
+
+.tower-card.selected {
+  background: rgba(255, 209, 102, 0.18);
+  border-color: var(--amber);
+  box-shadow: 0 0 18px rgba(255, 209, 102, 0.3);
+  transform: translateY(-3px);
+}
+
+.tower-card.cant-afford {
+  opacity: 0.48;
+}
+
+.card-hotkey {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  font-size: 0.65rem;
+  font-family: 'Chakra Petch', monospace;
+  color: var(--text-dim);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.card-emoji {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-name {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 0.84rem;
+  line-height: 1.1;
+}
+
+.card-role {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.card-cost {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--green);
+}
+
+/* MODALS */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(5, 7, 16, 0.82);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.modal-card {
+  max-width: 580px;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(18, 23, 46, 0.97), rgba(10, 13, 28, 0.98));
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75);
+}
+
+.modal-badge {
+  display: inline-block;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--neon-pink);
+  background: rgba(255, 59, 127, 0.14);
+  border: 1px solid rgba(255, 59, 127, 0.38);
+  padding: 4px 12px;
+  border-radius: 99px;
+  margin-bottom: 10px;
+}
+
+.modal-card h2 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 2rem;
+  color: var(--amber);
+  margin-bottom: 10px;
+  letter-spacing: 0.03em;
+}
+
+.modal-lead {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #d6def2;
+  margin-bottom: 18px;
+}
+
+.how-to-grid {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.how-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 11px;
+  padding: 10px 14px;
+}
+
+.how-emoji {
+  font-size: 1.65rem;
+}
+
+.how-item strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--amber);
+  margin-bottom: 2px;
+}
+
+.how-item p {
+  font-size: 0.79rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+
+.controls-note {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  margin-bottom: 18px;
+}
+
+.btn-start {
+  background: linear-gradient(135deg, var(--amber), var(--amber-hot));
+  color: #161105;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 13px 26px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(255, 159, 28, 0.4);
+}
+
+.btn-start:hover {
+  filter: brightness(1.08);
+}
+
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.end-stat-box {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+
+.end-stat-box span {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.end-stat-box strong {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 1.25rem;
+  color: var(--amber);
+}
+
+.end-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .brand-titles { display: none; }
+  .tower-card { width: 148px; }
+}
